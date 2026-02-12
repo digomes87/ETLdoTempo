@@ -43,7 +43,7 @@ class WeatherExtractor(DataExtractor):
             return data
 
         except Exception as e:
-            logging.error(f"Failes to extract data: {e}")
+            logging.error(f"Files to extract data: {e}")
             raise
 
     def _save_to_json(self, data: Any) -> None:
