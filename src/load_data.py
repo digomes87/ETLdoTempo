@@ -1,15 +1,15 @@
-import os
 import logging
+import os
 from pathlib import Path
-from typing import Any
+
 from dotenv import load_dotenv
 from pyspark.sql import DataFrame
-from src.interfaces.etl_interfaces import DataLoader
 
+from interfaces import DataLoader
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-class PostgresWeatherLoader(DataLoader):
+class WeatherPostgresLoader(DataLoader):
     """
     Handler data into postgresql with native spark JDBC
     And Implements dataloader interface
@@ -68,6 +68,6 @@ class PostgresWeatherLoader(DataLoader):
 
 
 def load_weather_data(table_name: str, df: DataFrame):
-    loader = PostgresWeatherLoader()
+    loader = WeatherPostgresLoader()
     loader.load(table_name, df)
 

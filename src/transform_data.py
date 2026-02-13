@@ -4,11 +4,9 @@ from pathlib import Path
 import logging
 from typing import Optional, Dict, List
 
-from pyspark.sql.types import StructField
-
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-from src.interfaces.etl_interfaces import DataTransformer
+from interfaces import DataTransformer
 
 class WeatherTransformer(DataTransformer):
     """
@@ -85,7 +83,7 @@ class WeatherTransformer(DataTransformer):
             for field in schema.fields:
                 name = f"{prefix}{field.name}" if prefix else field.name
                 if isinstance(field, F.StructType):
-                    cols.extend(get_flattened_columns(field.dataType, name))
+                    cols.extend(get_flattened_columns(field.dataType, name)) # check if is a StructType
                 else:
                     cols.append(F.col(name).alias(name))
             return cols

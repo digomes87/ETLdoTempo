@@ -5,9 +5,7 @@ from pathlib import Path
 import logging
 from typing import Any, Optional
 
-from pyspark.core import status
-
-from src.interfaces.etl_interfaces import DataExtractor
+from interfaces import DataExtractor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
