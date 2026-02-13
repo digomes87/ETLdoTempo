@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from pyspark.sql import DataFrame
 
-from interfaces import DataLoader
+from src.interfaces import DataLoader
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
@@ -54,6 +54,7 @@ class WeatherPostgresLoader(DataLoader):
                 .option("user", self.user) \
                 .option("password", self.password) \
                 .option("driver", "org.postgresql.Driver") \
+                .option("stringtype", "unspecified") \
                 .mode("append") \
                 .save()
         except Exception as e:

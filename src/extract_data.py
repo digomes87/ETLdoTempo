@@ -5,7 +5,7 @@ from pathlib import Path
 import logging
 from typing import Any, Optional
 
-from interfaces import DataExtractor
+from src.interfaces import DataExtractor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 

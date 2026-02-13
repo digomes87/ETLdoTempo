@@ -4,36 +4,38 @@ from pathlib import Path
 import sys
 import os
 
-sys.path.insert(0, '/opt/airflow/src')
+sys.path.insert(0, '/opt/airflow')
 
 from src.extract_data import extract_weather_data
-from src.load_data import load_weather_data
 from src.transform_data import data_transformations
 from dotenv import load_dotenv
 
 env_path = Path(__file__).resolve().parent.parent / 'config' / '.env'
 load_dotenv(env_path)
 
-API_KEY = os.getenv('API_KEY')
-# url = f'https://api.openweathermap.org/data/2.5/weather?q=Sao Paulo,BR&units=metric&appid={API_KEY}'
-url = os.getenv('url')
-url = url + API_KEY
+api_key = os.getenv('API_KEY') or os.getenv('api_key')
+url = os.getenv('url') or os.getenv('URL')
+
+if not api_key or not url:
+    raise ValueError(f"API_KEY or url not found. API_KEY: {'Found' if api_key else 'Miss'}, url: {'Found' if url else 'Miss'}")
+
+url = url + api_key
 
 print(url)
 
 @dag(
-    dag_id='youtube_weather_pipeline',
+    dag_id='weather_pipeline',
     default_args={
         'owner': 'airflow',
         'depends_on_past': False,
         'retries': 2,
         'retry_delay': timedelta(minutes=5)
     },
-    description='Pipeline ETL - CLima SP',
+    description='Pipeline ETL - Weather SP',
     schedule='0 */1 * * * ',
     start_date=datetime(2026, 2, 7),
     catchup=False,
-    tags=['weather', 'etl', 'se inscreve no canal!']
+    tags=['weather', 'etl', 'python']
 )
 def weather_pipeline():
     @task
@@ -48,11 +50,18 @@ def weather_pipeline():
 
     @task
     def load():
-        # Read with Spark and load natively
+        db_host = os.getenv('POSTGRES_HOST') or 'postgres'
+        
+        from src.load_data import WeatherPostgresLoader
+        loader = WeatherPostgresLoader(host=db_host)
+        
         from pyspark.sql import SparkSession
-        spark = SparkSession.builder.appName("AirflowLoad").getOrCreate()
+        spark = SparkSession.builder \
+            .appName("WeatherETL-Load") \
+            .config("spark.jars.packages", "org.postgresql:postgresql:42.7.2") \
+            .getOrCreate()
         df = spark.read.parquet('/opt/airflow/data/temp_data.parquet')
-        load_weather_data('sp_weather', df)
+        loader.load('sp_weather', df)
 
     extract() >> transform() >> load()
 

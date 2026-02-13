@@ -6,14 +6,14 @@ from typing import Optional, Dict, List
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-from interfaces import DataTransformer
+from src.interfaces import DataTransformer
 
 class WeatherTransformer(DataTransformer):
     """
     Handle transformations using pyspark
     Implement the interface Data Transformer
     """
-    DEFAULT_COLUMNS_TO_DROP = ['weather', 'weather_icon', 'sys.type']
+    DEFAULT_COLUMNS_TO_DROP = ['weather', 'weather_icon', 'sys.type', 'sys.id']
     DEFAULT_COLUMNS_TO_RENAME = {
         "base": "base",
         "visibility": "visibility",
@@ -37,7 +37,6 @@ class WeatherTransformer(DataTransformer):
         "wind.gust": "wind_gust",
         "clouds.all": "clouds",
         "sys.type": "sys_type",
-        "sys.id": "sys_id",
         "sys.country": "country",
         "sys.sunrise": "sunrise",
         "sys.sunset": "sunset",
@@ -51,7 +50,7 @@ class WeatherTransformer(DataTransformer):
                  datetime_columns: Optional[List[str]] = None):
         self.columns_to_drop = columns_to_drop or self.DEFAULT_COLUMNS_TO_DROP
         self.columns_to_rename = columns_to_rename or self.DEFAULT_COLUMNS_TO_RENAME
-        self.datetime_columns = datetime_columns or self.DEFAULT_COLUMNS_TO_DROP
+        self.datetime_columns = datetime_columns or self.DEFAULT_DATETIME_COLUMNS
 
     def transform(self,df: DataFrame) -> DataFrame:
         """Execute the full transformation logic provide DataFrame"""
@@ -61,6 +60,7 @@ class WeatherTransformer(DataTransformer):
             df = self._normalize_weather_columns(df)
             df = self._flatten_dataframe(df)
 
+            # After flattening, we need to use the flattened column names for renaming and dropping
             available_cols_to_drop = [c for c in self.columns_to_drop if c in df.columns]
             df = df.drop(*available_cols_to_drop)
 
@@ -77,13 +77,13 @@ class WeatherTransformer(DataTransformer):
 
     @staticmethod
     def _flatten_dataframe(df: DataFrame) -> DataFrame:
-        """Flatten nests structures in the dataframe"""
+        """Flatten nested structures in the dataframe"""
         def get_flattened_columns(schema, prefix=""):
             cols = []
             for field in schema.fields:
-                name = f"{prefix}{field.name}" if prefix else field.name
-                if isinstance(field, F.StructType):
-                    cols.extend(get_flattened_columns(field.dataType, name)) # check if is a StructType
+                name = f"{prefix}.{field.name}" if prefix else field.name
+                if isinstance(field.dataType, F.StructType):
+                    cols.extend(get_flattened_columns(field.dataType, name))
                 else:
                     cols.append(F.col(name).alias(name))
             return cols
@@ -134,6 +134,7 @@ def data_transformations(spark: Optional[SparkSession] = None,
         spark = SparkSession.builder \
             .appName("WeatherDataTransformation") \
             .config("spark.sql.session.timeZone", "UTC") \
+            .config("spark.jars.packages", "org.postgresql:postgresql:42.7.2") \
             .getOrCreate()
 
     if input_path is None:

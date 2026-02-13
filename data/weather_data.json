@@ -1,45 +1,45 @@
 {
     "coord": {
-        "lon": -46.6361,
-        "lat": -23.5475
+        "lon": -48.5012,
+        "lat": -27.6146
     },
     "weather": [
         {
-            "id": 800,
-            "main": "Clear",
-            "description": "clear sky",
-            "icon": "01n"
+            "id": 801,
+            "main": "Clouds",
+            "description": "few clouds",
+            "icon": "02d"
         }
     ],
     "base": "stations",
     "main": {
-        "temp": 22.83,
-        "feels_like": 23.47,
-        "temp_min": 22.83,
-        "temp_max": 23.2,
-        "pressure": 1018,
-        "humidity": 88,
-        "sea_level": 1018,
-        "grnd_level": 928
+        "temp": 26.94,
+        "feels_like": 28.44,
+        "temp_min": 26.46,
+        "temp_max": 27.01,
+        "pressure": 1012,
+        "humidity": 66,
+        "sea_level": 1012,
+        "grnd_level": 1009
     },
     "visibility": 10000,
     "wind": {
-        "speed": 1.54,
-        "deg": 70
+        "speed": 4.63,
+        "deg": 340
     },
     "clouds": {
-        "all": 0
+        "all": 20
     },
-    "dt": 1770969285,
+    "dt": 1770977568,
     "sys": {
         "type": 2,
-        "id": 2082654,
+        "id": 2084414,
         "country": "BR",
-        "sunrise": 1770972803,
-        "sunset": 1771019300
+        "sunrise": 1770972956,
+        "sunset": 1771020042
     },
     "timezone": -10800,
-    "id": 3448439,
-    "name": "S\u00e3o Paulo",
+    "id": 6323121,
+    "name": "Florian\u00f3polis",
     "cod": 200
 }
